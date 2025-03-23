@@ -11,6 +11,9 @@ const FileUpload = ({ session }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const fileInputRef = React.useRef(null);
+  const [translating, setTranslating] = useState({});
+  const [translations, setTranslations] = useState({});
+  const [targetLanguage, setTargetLanguage] = useState("");
 
   useEffect(() => {
     getVisits();
@@ -160,6 +163,26 @@ const FileUpload = ({ session }) => {
     }
   }
 
+  const handleTranslate = async (visitId, summary) => {
+    if (!targetLanguage) {
+      alert("Please enter a target language first");
+      return;
+    }
+
+    setTranslating(prev => ({ ...prev, [visitId]: true }));
+    try {
+      const prompt = `Translate the following medical summary to ${targetLanguage}. 
+        Maintain medical accuracy and terminology:\n\n${summary}`;
+      const translated = await generateAISummary(prompt);
+      setTranslations(prev => ({ ...prev, [visitId]: translated }));
+    } catch (error) {
+      console.error("Translation error:", error);
+      alert("Failed to translate. Please try again.");
+    } finally {
+      setTranslating(prev => ({ ...prev, [visitId]: false }));
+    }
+  };
+
   return (
     <div className="container mx-auto">
       <div className="mb-8">
@@ -294,9 +317,16 @@ const FileUpload = ({ session }) => {
       </div>
 
       <div className="mt-12">
-        <h2 className="text-xl font-semibold text-gray-800 mb-6">
-          Visit History
-        </h2>
+        <div className="flex items-center gap-4 mb-6">
+          <h2 className="text-xl font-semibold text-gray-800">Visit History</h2>
+          <input
+            type="text"
+            placeholder="Enter target language (e.g., Spanish)"
+            value={targetLanguage}
+            onChange={(e) => setTargetLanguage(e.target.value)}
+            className="px-3 py-1 border rounded-lg text-sm"
+          />
+        </div>
         {loading ? (
           <div className="flex justify-center py-8">
             <svg
@@ -340,6 +370,9 @@ const FileUpload = ({ session }) => {
                     Summary
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Translation
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Document
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -361,7 +394,43 @@ const FileUpload = ({ session }) => {
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-900">
                       <div className="max-w-md overflow-auto">
-                        {visit.summary || "No summary available"}
+                        {translations[visit.id] ? (
+                          <>
+                            <p className="mb-2">{translations[visit.id]}</p>
+                            <button
+                              onClick={() => setTranslations(prev => ({ ...prev, [visit.id]: null }))}
+                              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                            >
+                              Show Original
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <p className="mb-2">{visit.summary || "No summary available"}</p>
+                            <button
+                              onClick={() => handleTranslate(visit.id, visit.summary)}
+                              disabled={translating[visit.id]}
+                              className="text-blue-600 hover:text-blue-800 font-medium inline-flex items-center"
+                            >
+                              {translating[visit.id] ? (
+                                <span className="flex items-center">
+                                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                  </svg>
+                                  Translating...
+                                </span>
+                              ) : (
+                                <>
+                                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path>
+                                  </svg>
+                                  Translate
+                                </>
+                              )}
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
