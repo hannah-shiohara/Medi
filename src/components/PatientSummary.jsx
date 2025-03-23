@@ -29,7 +29,8 @@ const PatientSummary = () => {
         const prompt = `Given the following summaries of medical documents for this patient:\n\n${allSummaries}\n\n
             Please provide a comprehensive medical summary. Some things to include can be past health issues they've had, 
             prescriptions or medications they have received, pttern of medical visits and treatments.
-            Keep it concise but informative. Output only the text, nothing else, no formatting or headers or anything.`;
+            Keep it concise but informative. Output only the text, nothing else, no formatting or headers or anything. If nothing is provided, 
+            please just say "Add a Document to Get Started"`;
 
         const response = await generateAISummary(prompt);
         setSummary(response);

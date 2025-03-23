@@ -33,6 +33,7 @@ const Signup = () => {
 
   return (
     <div>
+      <h1 className="text-center pt-4 text-3xl">Medi</h1>
       <form onSubmit={handleSignUp} className="max-w-md m-auto pt-24">
         <h2 className="font-bold pb-2">Sign up today!</h2>
         <p>
