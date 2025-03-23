@@ -6,6 +6,7 @@ import { supabase } from "../supabaseClient";
 const PatientSummary = () => {
   const { session } = UserAuth();
   const [summary, setSummary] = useState("Loading summary...");
+  const [criticalConditions, setCriticalConditions] = useState([]);
   const [error, setError] = useState(null);
   const [targetLanguage, setTargetLanguage] = useState("");
   const [translatedSummary, setTranslatedSummary] = useState("");
@@ -26,14 +27,28 @@ const PatientSummary = () => {
         // Combine all summaries into one string
         const allSummaries = visits.map((visit) => visit.summary).join("\n");
 
-        const prompt = `Given the following summaries of medical documents for this patient:\n\n${allSummaries}\n\n
+        // Get the main summary
+        const summaryPrompt = `Given the following summaries of medical documents for this patient:\n\n${allSummaries}\n\n
             Please provide a comprehensive medical summary. Some things to include can be past health issues they've had, 
-            prescriptions or medications they have received, pttern of medical visits and treatments.
+            prescriptions or medications they have received, pattern of medical visits and treatments.
             Keep it concise but informative. Output only the text, nothing else, no formatting or headers or anything. If nothing is provided, 
             please just say "Add a Document to Get Started"`;
 
-        const response = await generateAISummary(prompt);
-        setSummary(response);
+        const summaryResponse = await generateAISummary(summaryPrompt);
+        setSummary(summaryResponse);
+
+        // Get critical conditions
+        const conditionsPrompt = `Given this medical summary:\n\n${summaryResponse}\n\n
+            Extract up to 3 of the most critical medical conditions mentioned. 
+            Return them as a comma-separated list with no other text. If no critical conditions are found, 
+            return "No critical conditions". Examples of critical conditions: Cancer, Heart Disease, Diabetes, etc.`;
+
+        const conditionsResponse = await generateAISummary(conditionsPrompt);
+        const conditions =
+          conditionsResponse === "No critical conditions"
+            ? []
+            : conditionsResponse.split(",").map((c) => c.trim());
+        setCriticalConditions(conditions);
       } catch (err) {
         console.error("Failed to get summary:", err);
         setError("Failed to generate summary. Please try again later.");
@@ -71,7 +86,9 @@ const PatientSummary = () => {
   return (
     <div className="h-full">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold text-gray-800">Medical Summary</h2>
+        <h2 className="text-xl font-semibold text-[#555676]">
+          Medical Summary
+        </h2>
         <div className="flex items-center space-x-2">
           {translatedSummary && (
             <button
@@ -90,6 +107,28 @@ const PatientSummary = () => {
         </div>
       ) : (
         <div className="space-y-6">
+          <div className="bg-gray-50 rounded-lg p-4">
+            <h3 className="text-sm font-medium text-gray-700 mb-2">
+              Potential Critical Conditions
+            </h3>
+            <div className="flex gap-2 flex-wrap">
+              {criticalConditions.length > 0 ? (
+                criticalConditions.map((condition, index) => (
+                  <span
+                    key={index}
+                    className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium"
+                  >
+                    {condition}
+                  </span>
+                ))
+              ) : (
+                <span className="text-gray-500 text-sm">
+                  No critical conditions
+                </span>
+              )}
+            </div>
+          </div>
+
           <div className="bg-gray-50 rounded-lg p-4">
             <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
               {showingTranslation ? translatedSummary : summary}

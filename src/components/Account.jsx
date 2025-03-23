@@ -97,7 +97,7 @@ export default function Account({ session }) {
             htmlFor="name"
             className="block text-sm font-medium text-gray-700"
           >
-            Name
+            Full Name
           </label>
           <input
             id="name"
@@ -146,7 +146,7 @@ export default function Account({ session }) {
             htmlFor="weight"
             className="block text-sm font-medium text-gray-700"
           >
-            Weight (kg)
+            Weight (kgs)
           </label>
           <input
             id="weight"

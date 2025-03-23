@@ -18,15 +18,16 @@ const FileUpload = ({ session }) => {
   const [selectedFilter, setSelectedFilter] = useState("all");
 
   const getUniqueVisitTypes = () => {
-    const uniqueTypes = [...new Set(visits.map(visit => visit.type_of_visit))];
-    return uniqueTypes.filter(type => type);
+    const uniqueTypes = [
+      ...new Set(visits.map((visit) => visit.type_of_visit)),
+    ];
+    return uniqueTypes.filter((type) => type);
   };
 
   const getFilteredVisits = () => {
     if (selectedFilter === "all") return visits;
-    return visits.filter(visit => visit.type_of_visit === selectedFilter);
+    return visits.filter((visit) => visit.type_of_visit === selectedFilter);
   };
-  
 
   useEffect(() => {
     getVisits();
@@ -185,7 +186,8 @@ const FileUpload = ({ session }) => {
     setTranslating((prev) => ({ ...prev, [visitId]: true }));
     try {
       const prompt = `Translate the following medical summary to ${targetLanguage}. 
-        Maintain medical accuracy and terminology:\n\n${summary}`;
+        Maintain medical accuracy and terminology:\n\n${summary}. Please keep it the same length as the summary.
+        Just return the text, no need for formatting, headers or anything like that.`;
       const translated = await generateAISummary(prompt);
       setTranslations((prev) => ({ ...prev, [visitId]: translated }));
     } catch (error) {
@@ -199,7 +201,7 @@ const FileUpload = ({ session }) => {
   return (
     <div className="container mx-auto">
       <div className="mb-8">
-        <h2 className="text-xl font-semibold text-gray-800 mb-6">
+        <h2 className="text-xl font-semibold text-[#555676] mb-6">
           Upload New Visit Document
         </h2>
         <div className="space-y-4">
@@ -331,7 +333,9 @@ const FileUpload = ({ session }) => {
 
       <div className="mt-12">
         <div className="flex items-center gap-4 mb-6">
-          <h2 className="text-xl font-semibold text-gray-800">Visit History</h2>
+          <h2 className="text-xl font-semibold text-[#555676]">
+            Visit History
+          </h2>
           <input
             type="text"
             placeholder="Enter target language (e.g., Spanish)"

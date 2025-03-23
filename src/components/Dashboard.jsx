@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Account from "./Account";
 import FileUpload from "./FileUpload";
 import PatientSummary from "./PatientSummary";
+import Logo from "../assets/medi_logo.png";
 
 const Dashboard = () => {
   const { session, signOut } = UserAuth();
@@ -22,10 +23,9 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      {/* Header */}
+    <div className="min-h-screen bg-[#EDF0F6] p-6">
       <div className="mb-8 flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-800">Medi Dashboard</h1>
+        <img src={Logo} alt="Medi Logo" className="h-12" />
         <button
           onClick={handleSignOut}
           className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
@@ -38,7 +38,7 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Column - Profile */}
         <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-xl font-semibold mb-6 text-gray-800">Profile</h2>
+          <h2 className="text-xl font-semibold mb-6 text-[#555676]">Profile</h2>
           <Account key={session.user.id} session={session} />
         </div>
 

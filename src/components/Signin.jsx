@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserAuth } from "../context/AuthContext";
+import Logo from "../assets/medi_logo.png";
 
 const Signin = () => {
   const [email, setEmail] = useState("");
@@ -32,10 +33,12 @@ const Signin = () => {
   };
 
   return (
-    <div>
-      <h1 className="text-center pt-4 text-3xl">Medi</h1>
+    <div className="bg-[#EDF0F6] min-h-screen">
+      <div className="flex justify-center pt-4">
+        <img src={Logo} alt="Medi Logo" className="h-12" />
+      </div>
       <form onSubmit={handleSignIn} className="max-w-md m-auto pt-24">
-        <h2 className="font-bold pb-2">Sign in</h2>
+        <h2 className="font-bold pb-2 text-[#555676]">Sign in</h2>
         <p>
           Don't have an account yet? <Link to="/signup">Sign up</Link>
         </p>
