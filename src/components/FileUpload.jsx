@@ -15,6 +15,19 @@ const FileUpload = ({ session }) => {
   const [translations, setTranslations] = useState({});
   const [targetLanguage, setTargetLanguage] = useState("");
 
+  const [selectedFilter, setSelectedFilter] = useState("all");
+
+  const getUniqueVisitTypes = () => {
+    const uniqueTypes = [...new Set(visits.map(visit => visit.type_of_visit))];
+    return uniqueTypes.filter(type => type);
+  };
+
+  const getFilteredVisits = () => {
+    if (selectedFilter === "all") return visits;
+    return visits.filter(visit => visit.type_of_visit === selectedFilter);
+  };
+  
+
   useEffect(() => {
     getVisits();
   }, [session]);
@@ -196,14 +209,14 @@ const FileUpload = ({ session }) => {
               placeholder="Clinic Name"
               value={clinicName}
               onChange={(e) => setClinicName(e.target.value)}
-              className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-4"
             />
             <input
               type="text"
               placeholder="Type of Visit"
               value={typeOfVisit}
               onChange={(e) => setTypeOfVisit(e.target.value)}
-              className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-4"
             />
           </div>
 
@@ -225,7 +238,7 @@ const FileUpload = ({ session }) => {
                   d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
                 />
               </svg>
-              Select PDF
+              Select Document
             </label>
             <input
               ref={fileInputRef}
@@ -277,16 +290,16 @@ const FileUpload = ({ session }) => {
               <button
                 onClick={uploadFile}
                 disabled={uploading || !clinicName || !typeOfVisit}
-                className={`w-full flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`w-full flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium transition-colors border-2 ${
                   uploading || !clinicName || !typeOfVisit
-                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                    : "bg-blue-600 text-white hover:bg-blue-700"
+                    ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200"
+                    : "bg-blue-600 text-black hover:bg-blue-700 border-blue-800 shadow-md"
                 }`}
               >
                 {uploading ? (
                   <span className="flex items-center">
                     <svg
-                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-black"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -326,6 +339,21 @@ const FileUpload = ({ session }) => {
             onChange={(e) => setTargetLanguage(e.target.value)}
             className="px-3 py-1 border rounded-lg text-sm"
           />
+          <span className="text-sm font-medium text-gray-700">
+            Filter by Type of Visit:
+          </span>
+          <select
+            value={selectedFilter}
+            onChange={(e) => setSelectedFilter(e.target.value)}
+            className="block w-48 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          >
+            <option value="all">All Visit Types</option>
+            {getUniqueVisitTypes().map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
+          </select>
         </div>
         {loading ? (
           <div className="flex justify-center py-8">
@@ -378,7 +406,7 @@ const FileUpload = ({ session }) => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {visits.map((visit) => (
+                {getFilteredVisits().map((visit) => (
                   <tr key={visit.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {visit.clinic_name}

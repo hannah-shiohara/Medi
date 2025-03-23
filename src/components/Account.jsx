@@ -181,7 +181,9 @@ export default function Account({ session }) {
           type="submit"
           disabled={loading}
         >
-          {loading ? "Saving..." : "Save Profile"}
+          <span className="text-black">
+            {loading ? "Saving..." : "Save Profile"}
+          </span>
         </button>
       </div>
     </form>
